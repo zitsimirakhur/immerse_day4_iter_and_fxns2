@@ -1,0 +1,218 @@
+---
+title: 'IMMERSE day 4: iteration and functions key'
+author: "Casey O'Hara"
+date: "2023-05-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r load packages}
+library(tidyverse)
+library(here)
+```
+
+## Challenge: reading in a bunch of files at once!
+
+Look in the data folder.  There is a file for each CA county with data on K-8 schools.  Examine one file (let's use Santa Barbara for our example) to get a sense of what's in there.  It is actually the AER::CASchools dataset, just broken down by county.
+
+Now let's read one in and examine some trends.  First, let's make graphical comparisons of certain variables by income.  We can plot each variable individually, or pivot_longer some observations
+
+```{r}
+sbc <- read_csv(here('county_data/santa_barbara.csv'))
+
+ggplot(sbc, aes(x = income, y = english)) +
+  geom_point() +
+  theme_minimal()
+
+sbc_long <- sbc %>%
+  mutate(s_t_ratio = students / teachers,
+         c_s_ratio = computer / students) %>%
+  pivot_longer(names_to = 'dep_var', values_to = 'dep_val', 
+               cols = c(s_t_ratio, c_s_ratio, calworks, lunch, 
+                        expenditure, english, read, math))
+
+ggplot(sbc_long, aes(x = income, y = dep_val, color = dep_var)) +
+  geom_point() +
+  theme_minimal() +
+  facet_wrap( ~ dep_var, scales = 'free_y') +
+  labs(x = 'Income ($1000s)')
+```
+
+OK, let's summarize these variables across the county, and write them out.
+
+```{r}
+sbc_summary <- sbc %>%
+  group_by(grades) %>%
+  summarize(mean_inc = mean(income) %>% round(3),
+            mean_read = mean(read) %>% round(3),
+            mean_math = mean(math) %>% round(3))
+write_csv(sbc_summary, here('county_data_clean/santa_barbara.csv'))
+```
+
+## Now let's do that across all 45 county files in our data folder!
+
+Ugh!  that sounds tedious.  How can we make this less tedious?  
+
+### You do:
+
+Fellows consider how to improve the process; give them time to think and write down, then discuss briefly; instructor writes as pseudocode.  
+
+The basic idea:
+
+- For any given file name, read it in, process it, save it out.
+- Different methods of iteration!
+
+## Loops intro
+
+For loops are a basic structure in most programming languages; *for* every element in a sequence, apply some amount of code.
+
+```{r}
+vec <- 1:20
+
+for(x in vec) {
+  print(x * 2)
+}
+
+### for each character element
+month_vec <- month.name ### built in month names
+
+for(m in month_vec) {
+  x <- paste(m, '2023')
+  print(x)
+}
+
+### sequence along a vector, with the index of each element
+for(i in seq_along(month_vec)) {
+  m <- month_vec[i]
+  y <- paste(m, 2024)
+  print(y)
+}
+```
+
+Why loops?  Iteration can make short work of tedious tasks.  Let's make a loop over all our files, and learn some useful functions for working with files.
+
+```{r}
+file_vec1 <- list.files(here('county_data'))
+file_vec2 <- list.files(here('county_data'), full.names = TRUE)
+file_vec3 <- list.files(here('county_data'), full.names = TRUE, pattern = '.csv')
+
+file_vec2[25]
+basename(file_vec2[25])
+dirname(file_vec2[25])
+```
+### You do (5 min):
+
+Try to make a loop over all the counties; read in the file from the `data` folder and write out the results to the `data_clean` folder with the same base name.
+
+```{r}
+f_vec <- list.files(here('county_data'), full.names = TRUE)
+for(f in f_vec) {
+  ### f <- f_vec[1]
+  cty_df <- read_csv(f, show_col_types = FALSE)
+  
+  cty_summary <- cty_df %>%
+    group_by(grades) %>%
+    summarize(mean_inc = mean(income) %>% round(3),
+              mean_read = mean(read) %>% round(3),
+              mean_math = mean(math) %>% round(3))
+  f_out <- here('county_data_clean', basename(f))
+  
+  write_csv(cty_summary, f_out)
+}
+```
+
+## Functions intro
+
+Write a simple function to take a number and square it.  Then add some bells and whistles...
+
+```{r}
+square <- function(x) {
+  y <- x^2
+  return(y)
+}
+
+square(3); square(sqrt(10))
+
+square <- function(x, pow = 2) {
+  y <- x^pow
+  return(y)
+}
+
+square(3, 5)
+```
+
+Why functions?
+
+- reuse a piece of code - and if you change the function, that change reflects through all uses
+- put a human-readable name (usually a verb clause) to a chunk of code - communicate to collaborators and future you
+- handy within loops and iteration functions (among other functions)
+
+### You do:
+
+Turn our code for Santa Barbara County data above into a function.  Tell it a file, it reads and summarizes the file and then writes out a clean copy.  Solicit student input - have them paste code into Slack or the Zoom chat
+
+```{r}
+process_county <- function(f) {
+  county_df <- read_csv(f, show_col_types = FALSE)
+  
+  county_summary <- county_df %>%
+    group_by(grades) %>%
+    summarize(mean_inc = mean(income) %>% round(3),
+              mean_read = mean(read) %>% round(3),
+              mean_math = mean(math) %>% round(3))
+  f_out <- here('county_data_clean', basename(f))
+  write_csv(county_summary, f_out)
+  
+  return(county_summary)
+}
+
+### Test it out: first, delete all the files in data_clean then:
+# process_county(f = here('county_data/santa_barbara.csv'))
+```
+
+Now write a loop to apply your function across all files.
+
+```{r}
+f_vec <- list.files(here('county_data'), full.names = TRUE)
+# system.time({
+for(f in f_vec) {
+  x <- process_county(f = f) 
+  ### note, we don't do anything with x, so it is forgotten each new time 
+  ### through the loop!
+}
+# })
+```
+
+## lapply() function
+
+lapply() is a built-in way to apply a function across all items in a sequence (list, vector, etc).  It is usually faster and more efficient than a for loop, since it is implemented in C++ under the hood.  There is also a parallelized version so you can take advantage of multiple processor cores simultaneously to speed things up.
+
+```{r}
+# ?lapply
+system.time({
+lapply(X = f_vec, FUN = process_county)
+})
+```
+
+You might also investigate the purrr package, part of the tidyverse - purrr::map() is essentially the same as lapply(), but with more tidyverse-friendly features.
+
+## One last lapply() example!
+
+If FUN results in a data frame, then lapply results in a list of data frames - which can be bound together using bind_rows().
+
+```{r}
+county_list <- lapply(f_vec, FUN = read_csv, 
+                      show_col_types = FALSE) ### additional params to FUN
+
+all_county_df <- bind_rows(county_list)
+
+DT::datatable(all_county_df)
+
+write_csv(all_county_df, here('data/ca_schools.csv'))
+```
+
+
+
