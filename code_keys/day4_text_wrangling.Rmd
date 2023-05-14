@@ -48,9 +48,12 @@ str_replace(x, ' ', '_')
 str_replace_all(x, ' ', '_')
 str_replace_all(x, ' +', '_') ### replace one or more spaces with _
 str_replace_all(str_squish(x), ' +|!+|\\?+', '_')
+### more regular expressions in the self-guided tour for asynchronous session
 
 str_detect(x, 't'); str_detect(x, 'dd|tt') ### is pattern in the string?
 ```
+
+
 ## OK now let's put into practice!  You do:
 
 Read in the file of `ca_schools.csv` we created in the previous script. Fix the `county` column to some standard format (however you prefer).  Note there is a typo in some instances of the Santa Barbara county name; identify those and fix those.  
@@ -74,5 +77,31 @@ write_csv(ca_schools_clean, here('data/ca_schools_clean.csv'))
 
 ```
 
+## A little more wrangling
+
+Now that we have a clean dataset (back at the starting point of `AER::CASchools`), let's do a little more wrangling using across() inside `mutate` and `summarize`:
+
+```{r}
+ca_by_county <- ca_schools_clean %>%
+  mutate(s_t_ratio = students / teachers) %>%
+  group_by(county) %>%
+  # summarize(mean_s_t = mean(s_t_ratio))
+  # summarize(across(.cols = students:math, .fns = mean))
+  # summarize(across(.cols = c(students, math), 
+  #                  .fns = mean, .names = '{.col}_mean'))
+  summarize(across(.cols = where(is.numeric), 
+                   .fns = list(mu = mean, sig = sd)))
+```
+
+```{r}
+ca_to_plot <- ca_by_county %>%
+  select(-contains('sig')) %>%
+  pivot_longer(names_to = 'var', values_to = 'val', cols = c(contains('mu'), -income_mu))
+ggplot(ca_to_plot, aes(x = income_mu, y = val)) +
+  geom_point() +
+  facet_wrap(~ var, scales = 'free_y')
+```
+
+Take some time to pretty up the plot - add a theme, labels, colors, etc.
 ## Wrap up - any other text wrangling needs/questions?
 

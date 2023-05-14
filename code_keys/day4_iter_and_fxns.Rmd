@@ -34,7 +34,7 @@ sbc_long <- sbc %>%
                cols = c(s_t_ratio, c_s_ratio, calworks, lunch, 
                         expenditure, english, read, math))
 
-ggplot(sbc_long, aes(x = income, y = dep_val, color = dep_var)) +
+ggplot(sbc_long, aes(x = income, y = dep_val, color = income)) +
   geom_point() +
   theme_minimal() +
   facet_wrap( ~ dep_var, scales = 'free_y') +
@@ -49,7 +49,7 @@ sbc_summary <- sbc %>%
   summarize(mean_inc = mean(income) %>% round(3),
             mean_read = mean(read) %>% round(3),
             mean_math = mean(math) %>% round(3))
-write_csv(sbc_summary, here('county_data_clean/santa_barbara.csv'))
+write_csv(sbc_summary, here('county_data_summary/santa_barbara.csv'))
 ```
 
 ## Now let's do that across all 45 county files in our data folder!
@@ -103,6 +103,7 @@ file_vec2[25]
 basename(file_vec2[25])
 dirname(file_vec2[25])
 ```
+
 ### You do (5 min):
 
 Try to make a loop over all the counties; read in the file from the `data` folder and write out the results to the `data_clean` folder with the same base name.
@@ -118,7 +119,7 @@ for(f in f_vec) {
     summarize(mean_inc = mean(income) %>% round(3),
               mean_read = mean(read) %>% round(3),
               mean_math = mean(math) %>% round(3))
-  f_out <- here('county_data_clean', basename(f))
+  f_out <- here('county_data_summary', basename(f))
   
   write_csv(cty_summary, f_out)
 }
@@ -152,7 +153,7 @@ Why functions?
 
 ### You do:
 
-Turn our code for Santa Barbara County data above into a function.  Tell it a file, it reads and summarizes the file and then writes out a clean copy.  Solicit student input - have them paste code into Slack or the Zoom chat
+Turn our code for Santa Barbara County data above into a function.  Tell it a file, it reads and summarizes the file and then writes out a clean copy.  Solicit student input - have them paste code into Slack or the Zoom chat.
 
 ```{r}
 process_county <- function(f) {
@@ -163,7 +164,7 @@ process_county <- function(f) {
     summarize(mean_inc = mean(income) %>% round(3),
               mean_read = mean(read) %>% round(3),
               mean_math = mean(math) %>% round(3))
-  f_out <- here('county_data_clean', basename(f))
+  f_out <- here('county_data_summary', basename(f))
   write_csv(county_summary, f_out)
   
   return(county_summary)
@@ -204,7 +205,8 @@ You might also investigate the purrr package, part of the tidyverse - purrr::map
 If FUN results in a data frame, then lapply results in a list of data frames - which can be bound together using bind_rows().
 
 ```{r}
-county_list <- lapply(f_vec, FUN = read_csv, 
+county_list <- lapply(f_vec, 
+                      FUN = read_csv, 
                       show_col_types = FALSE) ### additional params to FUN
 
 all_county_df <- bind_rows(county_list)
@@ -213,6 +215,3 @@ DT::datatable(all_county_df)
 
 write_csv(all_county_df, here('data/ca_schools.csv'))
 ```
-
-
-
