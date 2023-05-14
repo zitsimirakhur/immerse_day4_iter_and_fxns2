@@ -1,0 +1,78 @@
+---
+title: 'IMMERSE day 4: text wrangling basics'
+author: "Casey O'Hara"
+date: "2023-05-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r attach packages}
+library(tidyverse)
+library(here)
+```
+
+- intro to stringr
+- intro to regex
+- fix typos in state dataset and save back out
+
+# Intro to `stringr` functions
+
+Here we'll play a little with some basic `stringr` functions, and pattern vs. vector of strings.  Detecting strings (for filtering) and replacing/removing strings (for cleaning up text) are hugely helpful; other stringr functions certainly have their uses as well.  Here we're focusing on standardizing values in a character column so we can assign meaningful levels as a factor, to potentially use the column as a categorical variable.
+
+- `str_match`, `str_match_all`
+- `str_detect`
+- `str_split`
+- `str_replace`, `str_replace_all`
+- `str_subset`, `str_count`, `str_locate`
+- `str_trim`, `str_squish`
+- `str_to_upper/lower/title/sentence`
+
+Solicit pet names from the fellows to create a vector of character type; add in some random spaces and capitalization and punctuation
+
+``` {r}
+x <- c("Waffle!!!", "teddy", "  critter?!", "  taco   CAT   !")
+stringr::str_to_title(x)
+str_to_lower(x)
+str_squish(x) %>% 
+  str_to_upper()
+str_squish(x) %>% 
+  str_to_sentence()
+
+str_split(x, 'e'); str_split(x, 't')
+
+str_replace(x, 'e', 'Z')
+str_replace(x, ' ', '_')
+str_replace_all(x, ' ', '_')
+str_replace_all(x, ' +', '_') ### replace one or more spaces with _
+str_replace_all(str_squish(x), ' +|!+|\\?+', '_')
+
+str_detect(x, 't'); str_detect(x, 'dd|tt') ### is pattern in the string?
+```
+## OK now let's put into practice!  You do:
+
+Read in the file of `ca_schools.csv` we created in the previous script. Fix the `county` column to some standard format (however you prefer).  Note there is a typo in some instances of the Santa Barbara county name; identify those and fix those.  
+
+When finished, check the unique values found in the county column; there should be 45 unique values, no more, no less.  Once you've figured out a standard format that works well, then write out as `ca_schools_clean.csv`.
+
+```{r}
+ca_schools <- read_csv(here('data/ca_schools.csv'))
+
+# ca_schools$county %>% unique()
+
+ca_schools_clean <- ca_schools %>%
+  mutate(county = str_replace_all(county, '_', ' ')) %>%
+  mutate(county = str_to_title(county)) %>%
+  mutate(county = str_replace(county, 'Barabara', 'Barbara')) %>%
+  mutate(county = factor(county))
+
+ca_schools_clean$county %>% unique()
+
+write_csv(ca_schools_clean, here('data/ca_schools_clean.csv'))
+
+```
+
+## Wrap up - any other text wrangling needs/questions?
+
