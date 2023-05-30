@@ -391,17 +391,17 @@ column as a categorical variable.</p>
 </ul>
 <p>Solicit pet names from the fellows to create a vector of character
 type; add in some random spaces and capitalization and punctuation</p>
-<pre class="r"><code>x &lt;- c(&quot;Waffle!!!&quot;, &quot;teddy&quot;, &quot;  critter?!&quot;, &quot;  taco   CAT   !&quot;)
+<pre class="r"><code>x &lt;- c(&quot;Waffle!!!&quot;, &quot;teddy&quot;, &quot;  scallop?!&quot;, &quot;  taco   CAT   !&quot;)
 stringr::str_to_title(x)</code></pre>
-<pre><code>## [1] &quot;Waffle!!!&quot;        &quot;Teddy&quot;            &quot;  Critter?!&quot;      &quot;  Taco   Cat   !&quot;</code></pre>
+<pre><code>## [1] &quot;Waffle!!!&quot;        &quot;Teddy&quot;            &quot;  Scallop?!&quot;      &quot;  Taco   Cat   !&quot;</code></pre>
 <pre class="r"><code>str_to_lower(x)</code></pre>
-<pre><code>## [1] &quot;waffle!!!&quot;        &quot;teddy&quot;            &quot;  critter?!&quot;      &quot;  taco   cat   !&quot;</code></pre>
+<pre><code>## [1] &quot;waffle!!!&quot;        &quot;teddy&quot;            &quot;  scallop?!&quot;      &quot;  taco   cat   !&quot;</code></pre>
 <pre class="r"><code>str_squish(x) %&gt;% 
   str_to_upper()</code></pre>
-<pre><code>## [1] &quot;WAFFLE!!!&quot;  &quot;TEDDY&quot;      &quot;CRITTER?!&quot;  &quot;TACO CAT !&quot;</code></pre>
+<pre><code>## [1] &quot;WAFFLE!!!&quot;  &quot;TEDDY&quot;      &quot;SCALLOP?!&quot;  &quot;TACO CAT !&quot;</code></pre>
 <pre class="r"><code>str_squish(x) %&gt;% 
   str_to_sentence()</code></pre>
-<pre><code>## [1] &quot;Waffle!!!&quot;  &quot;Teddy&quot;      &quot;Critter?!&quot;  &quot;Taco cat !&quot;</code></pre>
+<pre><code>## [1] &quot;Waffle!!!&quot;  &quot;Teddy&quot;      &quot;Scallop?!&quot;  &quot;Taco cat !&quot;</code></pre>
 <pre class="r"><code>str_split(x, &#39;e&#39;); str_split(x, &#39;t&#39;)</code></pre>
 <pre><code>## [[1]]
 ## [1] &quot;Waffl&quot; &quot;!!!&quot;  
@@ -410,7 +410,7 @@ stringr::str_to_title(x)</code></pre>
 ## [1] &quot;t&quot;   &quot;ddy&quot;
 ## 
 ## [[3]]
-## [1] &quot;  critt&quot; &quot;r?!&quot;    
+## [1] &quot;  scallop?!&quot;
 ## 
 ## [[4]]
 ## [1] &quot;  taco   CAT   !&quot;</code></pre>
@@ -421,22 +421,24 @@ stringr::str_to_title(x)</code></pre>
 ## [1] &quot;&quot;     &quot;eddy&quot;
 ## 
 ## [[3]]
-## [1] &quot;  cri&quot; &quot;&quot;      &quot;er?!&quot; 
+## [1] &quot;  scallop?!&quot;
 ## 
 ## [[4]]
 ## [1] &quot;  &quot;            &quot;aco   CAT   !&quot;</code></pre>
 <pre class="r"><code>str_replace(x, &#39;e&#39;, &#39;Z&#39;)</code></pre>
-<pre><code>## [1] &quot;WafflZ!!!&quot;        &quot;tZddy&quot;            &quot;  crittZr?!&quot;      &quot;  taco   CAT   !&quot;</code></pre>
+<pre><code>## [1] &quot;WafflZ!!!&quot;        &quot;tZddy&quot;            &quot;  scallop?!&quot;      &quot;  taco   CAT   !&quot;</code></pre>
 <pre class="r"><code>str_replace(x, &#39; &#39;, &#39;_&#39;)</code></pre>
-<pre><code>## [1] &quot;Waffle!!!&quot;        &quot;teddy&quot;            &quot;_ critter?!&quot;      &quot;_ taco   CAT   !&quot;</code></pre>
+<pre><code>## [1] &quot;Waffle!!!&quot;        &quot;teddy&quot;            &quot;_ scallop?!&quot;      &quot;_ taco   CAT   !&quot;</code></pre>
 <pre class="r"><code>str_replace_all(x, &#39; &#39;, &#39;_&#39;)</code></pre>
-<pre><code>## [1] &quot;Waffle!!!&quot;        &quot;teddy&quot;            &quot;__critter?!&quot;      &quot;__taco___CAT___!&quot;</code></pre>
+<pre><code>## [1] &quot;Waffle!!!&quot;        &quot;teddy&quot;            &quot;__scallop?!&quot;      &quot;__taco___CAT___!&quot;</code></pre>
 <pre class="r"><code>str_replace_all(x, &#39; +&#39;, &#39;_&#39;) ### replace one or more spaces with _</code></pre>
-<pre><code>## [1] &quot;Waffle!!!&quot;   &quot;teddy&quot;       &quot;_critter?!&quot;  &quot;_taco_CAT_!&quot;</code></pre>
+<pre><code>## [1] &quot;Waffle!!!&quot;   &quot;teddy&quot;       &quot;_scallop?!&quot;  &quot;_taco_CAT_!&quot;</code></pre>
 <pre class="r"><code>str_replace_all(str_squish(x), &#39; +|!+|\\?+&#39;, &#39;_&#39;)</code></pre>
-<pre><code>## [1] &quot;Waffle_&quot;    &quot;teddy&quot;      &quot;critter__&quot;  &quot;taco_CAT__&quot;</code></pre>
-<pre class="r"><code>str_detect(x, &#39;t&#39;); str_detect(x, &#39;dd|tt&#39;) ### is pattern in the string?</code></pre>
-<pre><code>## [1] FALSE  TRUE  TRUE  TRUE</code></pre>
+<pre><code>## [1] &quot;Waffle_&quot;    &quot;teddy&quot;      &quot;scallop__&quot;  &quot;taco_CAT__&quot;</code></pre>
+<pre class="r"><code>### more regular expressions in the self-guided tour for asynchronous session
+
+str_detect(x, &#39;t&#39;); str_detect(x, &#39;dd|ll&#39;) ### is pattern in the string?</code></pre>
+<pre><code>## [1] FALSE  TRUE FALSE  TRUE</code></pre>
 <pre><code>## [1] FALSE  TRUE  TRUE FALSE</code></pre>
 <div id="ok-now-lets-put-into-practice-you-do" class="section level2">
 <h2>OK now let’s put into practice! You do:</h2>

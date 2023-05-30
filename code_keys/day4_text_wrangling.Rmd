@@ -33,7 +33,7 @@ Here we'll play a little with some basic `stringr` functions, and pattern vs. ve
 Solicit pet names from the fellows to create a vector of character type; add in some random spaces and capitalization and punctuation
 
 ``` {r}
-x <- c("Waffle!!!", "teddy", "  critter?!", "  taco   CAT   !")
+x <- c("Waffle!!!", "teddy", "  scallop?!", "  taco   CAT   !")
 stringr::str_to_title(x)
 str_to_lower(x)
 str_squish(x) %>% 
@@ -50,7 +50,7 @@ str_replace_all(x, ' +', '_') ### replace one or more spaces with _
 str_replace_all(str_squish(x), ' +|!+|\\?+', '_')
 ### more regular expressions in the self-guided tour for asynchronous session
 
-str_detect(x, 't'); str_detect(x, 'dd|tt') ### is pattern in the string?
+str_detect(x, 't'); str_detect(x, 'dd|ll') ### is pattern in the string?
 ```
 
 

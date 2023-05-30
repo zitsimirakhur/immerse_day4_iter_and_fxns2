@@ -16,29 +16,17 @@ library(here)
 
 ## Challenge: reading in a bunch of files at once!
 
-Look in the data folder.  There is a file for each CA county with data on K-8 schools.  Examine one file (let's use Santa Barbara for our example) to get a sense of what's in there.  It is actually the AER::CASchools dataset, just broken down by county.
+Look in the data folder.  There is a file for each CA county with data on K-8 schools.  Examine one file (let's use Santa Barbara for our example) to get a sense of what's in there.  It is actually the `AER::CASchools`  dataset, just broken down by county.
 
 Now let's read one in and examine some trends.  First, let's make graphical comparisons of certain variables by income.  We can plot each variable individually, or pivot_longer some observations
 
 ```{r}
 sbc <- read_csv(here('county_data/santa_barbara.csv'))
 
-ggplot(sbc, aes(x = income, y = english)) +
+ggplot(sbc, aes(x = income, y = english)) + ### try read, math scores, other vars
   geom_point() +
   theme_minimal()
 
-sbc_long <- sbc %>%
-  mutate(s_t_ratio = students / teachers,
-         c_s_ratio = computer / students) %>%
-  pivot_longer(names_to = 'dep_var', values_to = 'dep_val', 
-               cols = c(s_t_ratio, c_s_ratio, calworks, lunch, 
-                        expenditure, english, read, math))
-
-ggplot(sbc_long, aes(x = income, y = dep_val, color = income)) +
-  geom_point() +
-  theme_minimal() +
-  facet_wrap( ~ dep_var, scales = 'free_y') +
-  labs(x = 'Income ($1000s)')
 ```
 
 OK, let's summarize these variables across the county, and write them out.
@@ -46,9 +34,9 @@ OK, let's summarize these variables across the county, and write them out.
 ```{r}
 sbc_summary <- sbc %>%
   group_by(grades) %>%
-  summarize(mean_inc = mean(income) %>% round(3),
-            mean_read = mean(read) %>% round(3),
-            mean_math = mean(math) %>% round(3))
+  summarize(mean_inc = mean(income),
+            mean_read = mean(read),
+            mean_math = mean(math))
 write_csv(sbc_summary, here('county_data_summary/santa_barbara.csv'))
 ```
 
@@ -75,6 +63,7 @@ vec <- 1:20
 for(x in vec) {
   print(x * 2)
 }
+vec <- rnorm(n = 20, mean = 0, sd = 10)
 
 ### for each character element
 month_vec <- month.name ### built in month names
@@ -87,7 +76,7 @@ for(m in month_vec) {
 ### sequence along a vector, with the index of each element
 for(i in seq_along(month_vec)) {
   m <- month_vec[i]
-  y <- paste(m, 2024)
+  y <- paste(m, 2023)
   print(y)
 }
 ```
@@ -106,7 +95,7 @@ dirname(file_vec2[25])
 
 ### You do (5 min):
 
-Try to make a loop over all the counties; read in the file from the `data` folder and write out the results to the `data_clean` folder with the same base name.
+Try to make a loop over all the counties; read in the file from the `data` folder and write out the results to the `data_clean` folder with the same base name.  Start with pseudocode, then build from there.
 
 ```{r}
 f_vec <- list.files(here('county_data'), full.names = TRUE)
@@ -116,9 +105,9 @@ for(f in f_vec) {
   
   cty_summary <- cty_df %>%
     group_by(grades) %>%
-    summarize(mean_inc = mean(income) %>% round(3),
-              mean_read = mean(read) %>% round(3),
-              mean_math = mean(math) %>% round(3))
+    summarize(mean_inc = mean(income),
+              mean_read = mean(read),
+              mean_math = mean(math))
   f_out <- here('county_data_summary', basename(f))
   
   write_csv(cty_summary, f_out)
@@ -142,7 +131,7 @@ square <- function(x, pow = 2) {
   return(y)
 }
 
-square(3, 5)
+square(3, pow = 5)
 ```
 
 Why functions?
@@ -161,16 +150,16 @@ process_county <- function(f) {
   
   county_summary <- county_df %>%
     group_by(grades) %>%
-    summarize(mean_inc = mean(income) %>% round(3),
-              mean_read = mean(read) %>% round(3),
-              mean_math = mean(math) %>% round(3))
+    summarize(mean_inc = mean(income),
+              mean_read = mean(read),
+              mean_math = mean(math))
   f_out <- here('county_data_summary', basename(f))
   write_csv(county_summary, f_out)
   
   return(county_summary)
 }
 
-### Test it out: first, delete all the files in data_clean then:
+### Test it out: first, delete all the files in county_data_summary then:
 # process_county(f = here('county_data/santa_barbara.csv'))
 ```
 
@@ -198,11 +187,11 @@ lapply(X = f_vec, FUN = process_county)
 })
 ```
 
-You might also investigate the purrr package, part of the tidyverse - purrr::map() is essentially the same as lapply(), but with more tidyverse-friendly features.
+You might also investigate the `purrr` package, part of the `tidyverse` - `purrr::map()` is essentially the same as `lapply()`, but with more tidyverse-friendly features.
 
-## One last lapply() example!
+## One last `lapply()` example!
 
-If FUN results in a data frame, then lapply results in a list of data frames - which can be bound together using bind_rows().
+If `FUN` results in a data frame, then `lapply` results in a list of data frames - which can be bound together using `bind_rows()`.
 
 ```{r}
 county_list <- lapply(f_vec, 
