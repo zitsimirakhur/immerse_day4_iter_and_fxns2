@@ -48,7 +48,7 @@ for(m in month_vec) {
 ```
 
 ## Thinking about our data
-```{r}
+```{r thinking about our data}
 file_vec1 <- list.files(here('county_data'))
 file_vec2 <- list.files(here('county_data'), full.names = TRUE)
 file_vec3 <- list.files(here('county_data'), full.names = TRUE, pattern = '.csv')
@@ -59,7 +59,7 @@ dirname(file_vec2[25])
 ```
 
 ## Practicing with our data
-```{r}
+```{r loops with our data}
 f_vec <- list.files(here('county_data'), full.names = TRUE, pattern = '.csv')
 
 for(f in f_vec) {
@@ -75,7 +75,6 @@ for(f in f_vec) {
   
   write_csv(cty_summary, f_out)
 }
-
 
 ```
 
