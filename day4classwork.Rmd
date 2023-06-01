@@ -31,7 +31,7 @@ write_csv(sbc_summary, here('county_data_summary/santa_barbara.csv'))
 ```
 
 ## Getting started with loops
-```{r}
+```{r getting started with loops}
 vec <- 1:20
 
 for(x in vec) {
